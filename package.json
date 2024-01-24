@@ -2,10 +2,10 @@
   "name": "youtube-backend",
   "version": "1.0.0",
   "description": "a backend for a dummey youtube",
-  "main": "index.js",
   "type": "module",
+  "main": "index.js",
   "scripts": {
-    "dev": "nodemon /src/index.js"
+    "dev": "nodemon -r dotenv/config --experimental-json-modules src/index.js"
   },
   "repository": {
     "type": "git",
@@ -23,5 +23,10 @@
   "devDependencies": {
     "nodemon": "^3.0.3",
     "prettier": "^3.2.4"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.0",
+    "express": "^4.18.2",
+    "mongoose": "^8.1.0"
   }
 }
