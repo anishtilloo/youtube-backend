@@ -1,0 +1,26 @@
+{
+  "name": "youtube-backend",
+  "version": "1.0.0",
+  "description": "a backend for a dummey youtube",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon /src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anishtilloo/youtube-backend.git"
+  },
+  "keywords": [
+    "javascript"
+  ],
+  "author": "Anish Tilloo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/anishtilloo/youtube-backend/issues"
+  },
+  "homepage": "https://github.com/anishtilloo/youtube-backend#readme",
+  "devDependencies": {
+    "nodemon": "^3.0.3"
+  }
+}
