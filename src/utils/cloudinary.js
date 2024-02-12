@@ -28,4 +28,4 @@ const uplodeOnCloudinary = async (localFilePath) => {
 };
 
 
-export { uploadOnCloudinary };
+export { uplodeOnCloudinary };
