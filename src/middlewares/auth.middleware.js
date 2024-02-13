@@ -1,9 +1,10 @@
-import { verifyToken } from "../modules/token";
-import { ApiError } from "../utils/ApiError";
-import { asyncHandler } from "../utils/asyncHandler";
-import { User } from "../models/user.model";
+import { verifyToken } from "../modules/token.js";
+import { ApiError } from "../utils/ApiError.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { User } from "../models/user.model.js";
 
-const authenticateToken = asyncHandler(async (req, res, next) => {
+// when we are not using req or res we can put _ in place of them
+const authenticateToken = asyncHandler(async (req, _, next) => {
   try {
     const token =
       req.cookie?.accessToken ||
@@ -13,11 +14,13 @@ const authenticateToken = asyncHandler(async (req, res, next) => {
       throw new ApiError(401, "Unauthorized request");
     }
 
-    const decodedUser = verifyToken(token, process.env.ACCESS_TOKEN_SECRET);
+    const decodedToken = await verifyToken(
+      token,
+      process.env.ACCESS_TOKEN_SECRET
+    );
 
-    const user = User.findById(decodedUser._id).select(
-      "-password",
-      "-refreshToken"
+    const user = await User.findById(decodedToken._id).select(
+      "-password -refreshToken"
     );
 
     if (!user) {
@@ -25,6 +28,7 @@ const authenticateToken = asyncHandler(async (req, res, next) => {
     }
 
     req.user = user;
+    next();
   } catch (error) {
     throw new ApiError(401, error?.message || "Invalid Access Token");
   }

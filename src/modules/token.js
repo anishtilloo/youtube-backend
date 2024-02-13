@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
-import { User } from "../models/user.model";
-import { ApiError } from "../utils/ApiError";
+import { User } from "../models/user.model.js";
+import { ApiError } from "../utils/ApiError.js";
 
 const generateAccessAndRefreshToken = async (userId) => {
   try {
@@ -27,6 +27,6 @@ const verifyToken = async (token, secret) => {
   const verifiedAndDecodedUser = jwt.verify(token, secret);
 
   return verifiedAndDecodedUser;
-}
+};
 
 export { generateAccessAndRefreshToken, verifyToken };
