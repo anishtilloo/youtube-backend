@@ -22,7 +22,7 @@ const registerUser = asyncHandler(async (req, res) => {
   const { fullName, userName, email, password } = req.body;
 
   // here we are checking even after trimming the fields if they are empty throw an error
-  // here some function works loops through the array checking the condition and returning a boolean truw or false
+  // here some function works loops through the array checking the condition and returning a Boolean true or false
   // even if one of the condition is true it will return and throw an error
   if (
     [fullName, userName, email, password].some((field) => field?.trim() === "")
@@ -205,7 +205,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
       secure: true,
     };
 
-    const { accessToken, newRefreshToken } =
+    const { accessToken, refreshToken: newRefreshToken } =
       await generateAccessAndRefreshToken(user._id);
 
     return res
@@ -224,4 +224,221 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
   }
 });
 
-export { registerUser, loginUser, logoutUser, refreshAccessToken };
+const changeUserPassword = asyncHandler(async (req, res) => {
+  const { oldPassword, newPassword, confirmPassword } = req.body;
+
+  if (newPassword !== confirmPassword) {
+    throw new ApiError(401, "New and Confirm Password do not match");
+  }
+
+  // we are getting req.user from the middleware we attched as authentication where we are doing
+  // req.user = user where user is fetched using the id which we get from the decoded token
+  const user = await User.findById(req.user._id);
+
+  const isPasswordValid = user.isPasswordCorrect(oldPassword);
+
+  if (!isPasswordValid) {
+    throw new ApiError(400, "Invalid Old Password");
+  }
+
+  user.password = newPassword;
+  await user.save({ validateBeforeSave: false });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, "Password changed successfully"));
+});
+
+const getCurrentUser = asyncHandler(async (req, res) => {
+  try {
+    res
+      .status(200)
+      .json(
+        new ApiResponse(200, { user: req.user }, "User fetched successfully")
+      );
+  } catch (error) {
+    throw new ApiError(
+      500,
+      "Something went wrong, while fetching current user"
+    );
+  }
+});
+
+const updateAccountDetails = asyncHandler(async (req, res) => {
+  const { fullName, email } = req.body;
+
+  if (!fullName || !email) {
+    throw new ApiError(400, "All fields are required");
+  }
+
+  const user = await User.findByIdAndUpdate(
+    req.user?._id,
+    {
+      $set: {
+        fullName,
+        email,
+      },
+    },
+    {
+      new: true,
+    }
+  ).select("-password -refreshToken");
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, user, "Account details updated successfully"));
+});
+
+const updateUserAvatar = asyncHandler(async (req, res) => {
+  // it will be file when uploading single file, but files when uploading multiple files
+  const avatarLocalPath = req.file?.path;
+
+  if (!avatarLocalPath) {
+    throw new ApiError(400, "No file uploaded, Avatar file is missing");
+  }
+
+  const uplodeAvatarOnCloudinary = await uplodeOnCloudinary(avatarLocalPath);
+
+  if (!uplodeAvatarOnCloudinary.url) {
+    throw new ApiError(400, "Avatar file is required");
+  }
+
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      $set: {
+        avatar: uplodeAvatarOnCloudinary.url,
+      },
+    },
+    {
+      new: true,
+    }
+  ).select("-password -refreshToken");
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, user, "Avater file is uploaded successfully"));
+});
+
+const updateUserCoverImage = asyncHandler(async (req, res) => {
+  // it will be file when uploading single file, but files when uploading multiple files
+  const coverImageLocalPath = req.file?.path;
+
+  if (!coverImageLocalPath) {
+    throw new ApiError(400, "No file uploaded, Cover Image file is missing");
+  }
+
+  const uplodeCoverImageOnCloudinary =
+    await uplodeOnCloudinary(coverImageLocalPath);
+
+  if (!uplodeCoverImageOnCloudinary.url) {
+    throw new ApiError(400, "Cover Image file is required");
+  }
+
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      $set: {
+        coverImage: uplodeCoverImageOnCloudinary.url,
+      },
+    },
+    {
+      new: true,
+    }
+  ).select("-password -refreshToken");
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, user, "Cover Image file is uploaded successfully")
+    );
+});
+
+const getUserChannelProfile = asyncHandler(async (req, res) => {
+  const { userName } = req.parama;
+
+  if (!userName?.trim()) {
+    throw new ApiError(400, "username is missing");
+  }
+
+  // mongodb aggregation pipelines
+  const channel = await User.aggregate([
+    {
+      $match: { userName: userName?.toLowerCase() },
+    },
+    {
+      $lookup: {
+        from: "subscriptions",
+        localField: "_id",
+        foreignField: "channel",
+        as: "channel_subscribers",
+      },
+    },
+    {
+      $lookup: {
+        from: "subscriptions",
+        localField: "_id",
+        foreignField: "subscriber",
+        as: "channel_subscribed_to",
+      },
+    },
+    {
+      $addFields: {
+        channelSubscribersCount: {
+          $size: "$channel_subscribers",
+        },
+        channelSubscribedToCount: {
+          $size: "$channel_subscribed_to",
+        },
+        isSubscribed: {
+          $cond: {
+            if: { $in: [req.user?._id, "channel_subscribed_to.subscriber"] },
+            then: true,
+            else: false,
+          },
+        },
+      },
+    },
+    {
+      $project: {
+        fullName: 1,
+        userName: 1,
+        email: 1,
+        avatar: 1,
+        coverImage: 1,
+        channelSubscribersCount: 1,
+        channelSubscribedToCount: 1,
+        isSubscribed: 1,
+      },
+    },
+  ]);
+
+  console.log("channel", channel);
+
+  if (!channel?.length) {
+    throw new ApiError(404, "Channel does not exist");
+  }
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        channel: channel[0],
+      },
+      "Successfully returned channel with subscribers and subscribed to count"
+    )
+  );
+});
+
+export {
+  registerUser,
+  loginUser,
+  logoutUser,
+  refreshAccessToken,
+  changeUserPassword,
+  getCurrentUser,
+  updateAccountDetails,
+  updateUserAvatar,
+  updateUserCoverImage,
+  getUserChannelProfile,
+};
