@@ -7,7 +7,7 @@ import { User } from "../models/user.model.js";
 const authenticateToken = asyncHandler(async (req, _, next) => {
   try {
     const token =
-      req.cookie?.accessToken ||
+      req.cookies?.accessToken ||
       req.header("Authorization")?.replace("Bearer ", "");
 
     if (!token) {
