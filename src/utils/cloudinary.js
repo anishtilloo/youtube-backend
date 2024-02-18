@@ -23,9 +23,30 @@ const uplodeOnCloudinary = async (localFilePath) => {
     return responseFromCloudinary;
   } catch (error) {
     fs.unlinkSync(localFilePath); // remove the locally saved temporary file as the upload operation got failed
-    return { message: "The upload operation got failed" };
+    return {
+      error: error,
+      message: "The upload operation got failed",
+    };
   }
 };
 
+const deleteImageOnCloudinary = async (publicId) => {
+  try {
+    if (!publicId) return { message: "No public id Found" };
+    const responseFromCloudinary = await cloudinary.uploader.destroy(
+      publicId, 
+      {
+        resource_type: 'image', 
+        invalidate: true
+      }
+    );
+    return responseFromCloudinary;
+  } catch (error) {
+    return { 
+      error: error,
+      message: "The delete operation got failed" 
+    };
+  }
+};
 
-export { uplodeOnCloudinary };
+export { uplodeOnCloudinary, deleteImageOnCloudinary };

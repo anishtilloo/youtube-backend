@@ -2,7 +2,10 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/user.model.js";
-import { uplodeOnCloudinary } from "../utils/cloudinary.js";
+import {
+  uplodeOnCloudinary,
+  deleteImageOnCloudinary,
+} from "../utils/cloudinary.js";
 import {
   generateAccessAndRefreshToken,
   verifyToken,
@@ -301,6 +304,16 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     throw new ApiError(400, "No file uploaded, Avatar file is missing");
   }
 
+  //TODO: delete old image - assignment
+  // getting the public id from the url
+  const prevAvatarUrl = req.user.avatar;
+  let avatarPublicName = prevAvatarUrl.split("/");
+  avatarPublicName = avatarPublicName[avatarPublicName.length - 1].split(".");
+
+  if (prevAvatarUrl) {
+    await deleteImageOnCloudinary(avatarPublicName[0]);
+  } 
+
   const uplodeAvatarOnCloudinary = await uplodeOnCloudinary(avatarLocalPath);
 
   if (!uplodeAvatarOnCloudinary.url) {
@@ -330,6 +343,17 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
 
   if (!coverImageLocalPath) {
     throw new ApiError(400, "No file uploaded, Cover Image file is missing");
+  }
+
+  //TODO: delete old image - assignment
+  // getting the public id from the url
+  const prevCoverImageUrl = req.user.coverImage;
+  let coverImagePublicName = prevCoverImageUrl.split("/");
+  coverImagePublicName =
+    coverImagePublicName[coverImagePublicName.length - 1].split(".");
+
+  if (prevCoverImageUrl) {
+    await deleteImageOnCloudinary(coverImagePublicName[0]);
   }
 
   const uplodeCoverImageOnCloudinary =
