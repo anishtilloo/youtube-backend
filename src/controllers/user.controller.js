@@ -428,6 +428,59 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
   );
 });
 
+const getUserHistory = asyncHandler(async (req, res) => {
+  const user = await User.aggregate([
+    {
+      $lookup: {
+        from: "videos",
+        localField: "watchHistory",
+        foreignField: "_id",
+        as: "watchHistory",
+        pipeline: [
+          // write sub pipeline using pipeline
+          {
+            $lookup: {
+              //inside the videos table there is owner whcich is linked to the users to to add values to it we are using lookup here
+              from: "users",
+              localField: "owner",
+              foreignField: "_id",
+              as: "owner",
+              pipeline: [
+                // to add more pipelines insde inside it we are using pipeline
+                {
+                  $project: {
+                    fullName: 1,
+                    userName: 1,
+                    avatar: 1,
+                    coverImage: 1,
+                  },
+                },
+              ],
+            },
+          },
+          {
+            $addFields: {
+              owner: {
+                $first: "$owner",
+              },
+            },
+          },
+        ],
+      },
+    },
+  ]);
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        user.watchHistory[0],
+        "user watch history fetched successfully"
+      )
+    );
+});
+
 export {
   registerUser,
   loginUser,
@@ -439,4 +492,5 @@ export {
   updateUserAvatar,
   updateUserCoverImage,
   getUserChannelProfile,
+  getUserHistory,
 };
