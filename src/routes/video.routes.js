@@ -7,13 +7,13 @@ import {
   togglePublishStatus,
   updateVideo,
 } from "../controllers/video.controller.js";
-import { verifyJWT } from "../middlewares/auth.middleware.js";
-import { upload } from "../middlewares/multer.middleware.js";
+import { authenticateToken } from "../middlewares/auth.middleware.js";
+import upload from "../middlewares/multer.middleware.js";
 
-const router = Router();
-router.use(verifyJWT); // Apply verifyJWT middleware to all routes in this file
+const videoRouter = Router();
+videoRouter.use(authenticateToken); // Apply authenticateToken middleware to all routes in this file
 
-router
+videoRouter
   .route("/")
   .get(getAllVideos)
   .post(
@@ -30,12 +30,12 @@ router
     publishAVideo
   );
 
-router
+videoRouter
   .route("/:videoId")
   .get(getVideoById)
   .delete(deleteVideo)
   .patch(upload.single("thumbnail"), updateVideo);
 
-router.route("/toggle/publish/:videoId").patch(togglePublishStatus);
+videoRouter.route("/toggle/publish/:videoId").patch(togglePublishStatus);
 
-export default router;
+export default videoRouter;

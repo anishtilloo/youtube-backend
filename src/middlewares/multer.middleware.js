@@ -12,7 +12,7 @@ const storage = multer.diskStorage({
   },
 });
 
-const uplode = multer({
+const upload = multer({
   storage: storage,
   //   fileFilter: function (req, file, callback) {
   //     if (
@@ -31,4 +31,4 @@ const uplode = multer({
   //   },
 });
 
-export default uplode;
+export default upload;

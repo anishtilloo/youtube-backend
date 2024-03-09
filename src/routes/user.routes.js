@@ -12,7 +12,7 @@ import {
   updateUserCoverImage,
   getUserHistory,
 } from "../controllers/user.controller.js";
-import uplode from "../middlewares/multer.middleware.js";
+import upload from "../middlewares/multer.middleware.js";
 import { authenticateToken } from "../middlewares/auth.middleware.js";
 
 const userRouter = express.Router();
@@ -20,7 +20,7 @@ const userRouter = express.Router();
 userRouter
   .route("/register")
   .post(
-    uplode.fields([
+    upload.fields([
       {
         name: "avatar",
         maxCount: 1,
@@ -55,10 +55,10 @@ userRouter
   .patch(authenticateToken, updateAccountDetails);
 userRouter
   .route("/update-avatar")
-  .patch(authenticateToken, uplode.single("avatar"), updateUserAvatar);
+  .patch(authenticateToken, upload.single("avatar"), updateUserAvatar);
 userRouter
   .route("update-coverImage")
-  .patch(authenticateToken, uplode.single("coverImage"), updateUserCoverImage);
+  .patch(authenticateToken, upload.single("coverImage"), updateUserCoverImage);
 userRouter
   .route("/channel-profile/:userName")
   .get(authenticateToken, getUserChannelProfile);

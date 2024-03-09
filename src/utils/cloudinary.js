@@ -7,7 +7,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const uplodeOnCloudinary = async (localFilePath) => {
+const uploadOnCloudinary = async (localFilePath) => {
   try {
     if (!localFilePath) return { message: "No Local Path Found" };
     // uplode file on cloundinary
@@ -15,6 +15,7 @@ const uplodeOnCloudinary = async (localFilePath) => {
       localFilePath,
       {
         resource_type: "auto",
+        media_metadata: true,
       }
     );
     // file has been uploaded successfull
@@ -49,4 +50,24 @@ const deleteImageOnCloudinary = async (publicId) => {
   }
 };
 
-export { uplodeOnCloudinary, deleteImageOnCloudinary };
+const deleteVideosOnCloudinary = async (publicId) => {
+  try {
+    if (!publicId) return { message: "No public id Found" };
+    const responseFromCloudinary = await cloudinary.uploader.destroy(publicId, {
+      resource_type: "video",
+      invalidate: true,
+    });
+    return responseFromCloudinary;
+  } catch (error) {
+    return {
+      error: error,
+      message: "The delete operation got failed",
+    };
+  }
+};
+
+export {
+  uploadOnCloudinary,
+  deleteImageOnCloudinary,
+  deleteVideosOnCloudinary,
+};

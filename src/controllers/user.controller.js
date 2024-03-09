@@ -3,7 +3,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/user.model.js";
 import {
-  uplodeOnCloudinary,
+  uploadOnCloudinary,
   deleteImageOnCloudinary,
 } from "../utils/cloudinary.js";
 import {
@@ -58,8 +58,8 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 
   const uplodeAvatarOnCloudinary =
-    await uplodeOnCloudinary(avatarLocalFilePath);
-  const uplodeCoverImageOnClodinary = await uplodeOnCloudinary(
+    await uploadOnCloudinary(avatarLocalFilePath);
+  const uplodeCoverImageOnClodinary = await uploadOnCloudinary(
     coverImageLocalFilePath
   );
 
@@ -314,7 +314,7 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     await deleteImageOnCloudinary(avatarPublicName[0]);
   } 
 
-  const uplodeAvatarOnCloudinary = await uplodeOnCloudinary(avatarLocalPath);
+  const uplodeAvatarOnCloudinary = await uploadOnCloudinary(avatarLocalPath);
 
   if (!uplodeAvatarOnCloudinary.url) {
     throw new ApiError(400, "Avatar file is required");
@@ -357,7 +357,7 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
   }
 
   const uplodeCoverImageOnCloudinary =
-    await uplodeOnCloudinary(coverImageLocalPath);
+    await uploadOnCloudinary(coverImageLocalPath);
 
   if (!uplodeCoverImageOnCloudinary.url) {
     throw new ApiError(400, "Cover Image file is required");
@@ -444,7 +444,7 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
   if (!channel?.length) {
     throw new ApiError(404, "Channel does not exist");
   }
-
+         
   return res.status(200).json(
     new ApiResponse(
       200,
