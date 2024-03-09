@@ -165,6 +165,11 @@ const deleteVideo = asyncHandler(async (req, res) => {
     const video = await Video.findById({
       _id: videoId
     })
+
+    if(!videoId) {
+      throw new ApiError(400, "The video does not exist");
+    }
+
     const videoUrl = video.videoFile;
     let videoPublicId = videoUrl.split("/");
     videoPublicName = videoPublicId[videoPublicId - 1].split(".");
@@ -176,7 +181,7 @@ const deleteVideo = asyncHandler(async (req, res) => {
     await Video.findByIdAndDelete({
       _id: videoId,
     });
-    
+
     return res.status(200).json(
       new ApiResponse(200, "Video Successfully deleted")
     )
@@ -187,6 +192,32 @@ const deleteVideo = asyncHandler(async (req, res) => {
 
 const togglePublishStatus = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
+
+ try {
+   const video = await Video.findById({
+     _id: videoId
+   });
+ 
+   if (!video) {
+     throw new ApiError(404, "This video does not exist");
+   }
+ 
+   const videoIsPubliched = await Video.findByIdAndUpdate(videoId, {
+     $set: {
+       isPublished: !video.isPublished
+     }
+   },
+   {
+     new: true,
+   })
+ 
+   return res
+     .status(200)
+     .json(new ApiResponse(200, videoIsPubliched, "The status of the video has been updated"));
+ 
+ } catch (error) {
+  throw new ApiError(500, "Something went wrong, during changing the status(isPublished) of the video")
+ }
 });
 
 export {
