@@ -53,7 +53,7 @@ const userSchema = new Schema(
   }
 );
 
-// pre is a middlerware in mongoDB which runs before the method we have mentions as string 
+// pre is a middleware in mongoDB which runs before the method we have mentions as string 
 //  here in this case it is save, whenever save method called this runs before the save is ex
 // we are using normal functions instead of arrow functions because in arrow functions does not have to the context using this
 userSchema.pre("save", async function(next) {
@@ -64,13 +64,13 @@ userSchema.pre("save", async function(next) {
 });
 
 
-// these are the special methods defined to do certian tasks
+// these are the special methods defined to do certain tasks
 userSchema.methods.isPasswordCorrect = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
 
 //  jwt sign method takes 
-//  paylode(a fancy word for the req data), 
+//  payload(a fancy word for the req data), 
 //  a token secret, 
 //  object in which the expiration time is given
 // generation access token

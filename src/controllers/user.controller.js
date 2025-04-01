@@ -57,20 +57,20 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Avatar file is required");
   }
 
-  const uplodeAvatarOnCloudinary =
+  const uploadAvatarOnCloudinary =
     await uploadOnCloudinary(avatarLocalFilePath);
-  const uplodeCoverImageOnClodinary = await uploadOnCloudinary(
+  const uploadCoverImageOnCloudinary = await uploadOnCloudinary(
     coverImageLocalFilePath
   );
 
-  if (!uplodeAvatarOnCloudinary) {
+  if (!uploadAvatarOnCloudinary) {
     throw new ApiError(400, "Avatar file is required");
   }
 
   const user = await User.create({
     fullName,
-    avatar: uplodeAvatarOnCloudinary.url,
-    coverImage: uplodeCoverImageOnClodinary?.url || "",
+    avatar: uploadAvatarOnCloudinary.url,
+    coverImage: uploadCoverImageOnCloudinary?.url || "",
     email,
     password,
     userName: userName.toLowerCase(),
@@ -159,7 +159,7 @@ const logoutUser = asyncHandler(async (req, res) => {
     userId,
     {
       // $set: {
-      //   refreshToken: undefined, // undefined in update query ignores the field and does othing to it
+      //   refreshToken: undefined, // undefined in update query ignores the field and does nothing to it
       //   // and when we set it to null it actually set the value of that field to null
       // },
       $unset: {
@@ -189,7 +189,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
       req.cookies.refreshToken || req.body.refreshToken;
 
     if (!incomingRefreshToken) {
-      throw new ApiError(401, "Unautorized Request");
+      throw new ApiError(401, "Unauthorized Request");
     }
 
     const decodedToken = await verifyToken(
@@ -238,7 +238,7 @@ const changeUserPassword = asyncHandler(async (req, res) => {
     throw new ApiError(401, "New and Confirm Password do not match");
   }
 
-  // we are getting req.user from the middleware we attched as authentication where we are doing
+  // we are getting req.user from the middleware we attached as authentication where we are doing
   // req.user = user where user is fetched using the id which we get from the decoded token
   const user = await User.findById(req.user._id);
 
@@ -314,9 +314,9 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     await deleteImageOnCloudinary(avatarPublicName[0]);
   } 
 
-  const uplodeAvatarOnCloudinary = await uploadOnCloudinary(avatarLocalPath);
+  const uploadAvatarOnCloudinary = await uploadOnCloudinary(avatarLocalPath);
 
-  if (!uplodeAvatarOnCloudinary.url) {
+  if (!uploadAvatarOnCloudinary.url) {
     throw new ApiError(400, "Avatar file is required");
   }
 
@@ -324,7 +324,7 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     req.user._id,
     {
       $set: {
-        avatar: uplodeAvatarOnCloudinary.url,
+        avatar: uploadAvatarOnCloudinary.url,
       },
     },
     {
@@ -334,7 +334,7 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, user, "Avater file is uploaded successfully"));
+    .json(new ApiResponse(200, user, "Avatar file is uploaded successfully"));
 });
 
 const updateUserCoverImage = asyncHandler(async (req, res) => {
@@ -356,10 +356,10 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
     await deleteImageOnCloudinary(coverImagePublicName[0]);
   }
 
-  const uplodeCoverImageOnCloudinary =
+  const uploadCoverImageOnCloudinary =
     await uploadOnCloudinary(coverImageLocalPath);
 
-  if (!uplodeCoverImageOnCloudinary.url) {
+  if (!uploadCoverImageOnCloudinary.url) {
     throw new ApiError(400, "Cover Image file is required");
   }
 
@@ -367,7 +367,7 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
     req.user._id,
     {
       $set: {
-        coverImage: uplodeCoverImageOnCloudinary.url,
+        coverImage: uploadCoverImageOnCloudinary.url,
       },
     },
     {
@@ -468,13 +468,13 @@ const getUserHistory = asyncHandler(async (req, res) => {
           // write sub pipeline using pipeline
           {
             $lookup: {
-              //inside the videos table there is owner whcich is linked to the users to to add values to it we are using lookup here
+              //inside the videos table there is owner which is linked to the users to to add values to it we are using lookup here
               from: "users",
               localField: "owner",
               foreignField: "_id",
               as: "owner",
               pipeline: [
-                // to add more pipelines insde inside it we are using pipeline
+                // to add more pipelines inside inside it we are using pipeline
                 {
                   $project: {
                     fullName: 1,

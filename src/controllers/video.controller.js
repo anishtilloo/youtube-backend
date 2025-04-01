@@ -19,13 +19,13 @@ const getAllVideos = asyncHandler(async (req, res) => {
 
   try {
       const videoAggregate = await Video.aggregate();
-      const resultWithPagenation = await Video.aggregatePaginate(videoAggregate, options);
+      const resultWithPagination = await Video.aggregatePaginate(videoAggregate, options);
       return res
         .status(200)
         .json(
           new ApiResponse(
             200,
-            { data: resultWithPagenation },
+            { data: resultWithPagination },
             "Successfully fetched the videos"
           )
         );
@@ -33,7 +33,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
     return res
       .status(500)
       .json(
-        new ApiError(500, { error: error }, "Someting went wrong while fetching the videos")
+        new ApiError(500, { error: error }, "Something went wrong while fetching the videos")
       );
   }
 });
@@ -73,27 +73,27 @@ const publishAVideo = asyncHandler(async (req, res) => {
       throw new ApiError(400, "Video file is required");
     }
 
-    const uplodeVideoFileOnCloudinary =
+    const uploadVideoFileOnCloudinary =
       await uploadOnCloudinary(localVideoPath);
 
-    if (!uplodeVideoFileOnCloudinary) {
+    if (!uploadVideoFileOnCloudinary) {
       throw new ApiError(400, "Video file is required");
     }
 
-    const uplodeThumbnailOnCloudinary =
+    const uploadThumbnailOnCloudinary =
       await uploadOnCloudinary(localThumbnailPath);
 
-    if (!uplodeThumbnailOnCloudinary) {
+    if (!uploadThumbnailOnCloudinary) {
       throw new ApiError(400, "Thumbnail file is required");
     }
 
     const userId = req.user._id;
     const video = await Video.create({
-      videoFile: uplodeVideoFileOnCloudinary.url,
-      thumbNail: uplodeThumbnailOnCloudinary.url,
+      videoFile: uploadVideoFileOnCloudinary.url,
+      thumbNail: uploadThumbnailOnCloudinary.url,
       title,
       description,
-      duration: uplodeVideoFileOnCloudinary.duration,
+      duration: uploadVideoFileOnCloudinary.duration,
       user: userId,
     });
 
@@ -110,7 +110,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
     return res
       .status(500)
       .json(
-        new ApiResponse(500, "Somethin went wrong, while uploading the video.")
+        new ApiResponse(500, "Something went wrong, while uploading the video.")
       );
   }
 });
@@ -165,17 +165,17 @@ const updateVideo = asyncHandler(async (req, res) => {
        );
      }
   
-    const uplodeThumbnailOnCloudinary =
+    const uploadThumbnailOnCloudinary =
       await uploadOnCloudinary(localThumbnailPath);
   
-    if (!uplodeThumbnailOnCloudinary) {
+    if (!uploadThumbnailOnCloudinary) {
       throw new ApiError(400, "Error during uploading thumbnail on Cloudinary");
     }
   
     const video = await Video.findByIdAndUpdate(videoId, {
       title,
       description,
-      thumbNail: uplodeThumbnailOnCloudinary.url,
+      thumbNail: uploadThumbnailOnCloudinary.url,
     });
 
     return res.status(200).json(new ApiResponse(200, { video: video }, "Successfully updated title or description or thumbnail of the video"));
@@ -229,7 +229,7 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
      throw new ApiError(404, "This video does not exist");
    }
  
-   const videoIsPubliched = await Video.findByIdAndUpdate(videoId, {
+   const videoIsPublished = await Video.findByIdAndUpdate(videoId, {
      $set: {
        isPublished: !video.isPublished
      }
@@ -240,7 +240,7 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
  
    return res
      .status(200)
-     .json(new ApiResponse(200, videoIsPubliched, "The status of the video has been updated"));
+     .json(new ApiResponse(200, videoIsPublished, "The status of the video has been updated"));
  
  } catch (error) {
   throw new ApiError(500, "Something went wrong, during changing the status(isPublished) of the video")
