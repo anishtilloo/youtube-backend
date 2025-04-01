@@ -117,4 +117,9 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
+# Ignore all files in /config folder except default.js and index.js
+/src/config/*
+!/src/config/default.js
+!/src/config/index.js
+
 # End of https://mrkandreev.name/snippets/gitignore-generator/#Node

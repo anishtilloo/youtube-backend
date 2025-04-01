@@ -2,6 +2,8 @@
 import dotenv from "dotenv";
 import connectDB from "./db/index.js";
 import { app } from "./app.js";
+import { logger } from "./modules/logger.js";
+import { config } from "./config/default.js";
 
 dotenv.config({
   path: "./env",
@@ -9,16 +11,16 @@ dotenv.config({
 connectDB()
   .then(() => {
     app.on("error", (error) => {
-      console.error(
+      logger.error(
         ` Error thrown::::ERROR during Listening to PORT !!!`,
         error
       );
       process.exit(1);
     });
-    app.listen(process.env.PORT || 9000, () => {
-      console.log(` Server running on port ${process.env.PORT || 9000}`);
+    app.listen(config.server.port || 9000, () => {
+      logger.info(`Server running on port ${config.server.port || 9000}`);
     });
   })
   .catch((error) => {
-    console.error(" Error thrown::::MONGO DB connection FAILED !!! ", error);
+    logger.error(" Error thrown::::MONGO DB connection FAILED !!! ", error);
   });

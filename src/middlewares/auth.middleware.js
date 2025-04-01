@@ -2,6 +2,7 @@ import { verifyToken } from "../modules/token.js";
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { User } from "../models/user.model.js";
+import { config } from "../config/default.js";
 
 // when we are not using req or res we can put _ in place of them
 const authenticateToken = asyncHandler(async (req, _, next) => {
@@ -16,7 +17,7 @@ const authenticateToken = asyncHandler(async (req, _, next) => {
 
     const decodedToken = await verifyToken(
       token,
-      process.env.ACCESS_TOKEN_SECRET
+      config.token.accessTokenSecret,
     );
 
     const user = await User.findById(decodedToken._id).select(

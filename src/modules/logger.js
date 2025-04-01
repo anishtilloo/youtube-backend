@@ -1,4 +1,4 @@
-import { config } from "../config";
+import { config } from '../config/default.js';
 import fs from 'fs/promises';
 import { EOL } from 'os';
 
