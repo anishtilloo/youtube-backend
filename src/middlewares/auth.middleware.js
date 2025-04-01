@@ -1,7 +1,7 @@
 import { verifyToken } from "../modules/token.js";
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { User } from "../models/user.model.js";
+import { User } from "../db/models/user.model.js";
 import { config } from "../config/default.js";
 
 // when we are not using req or res we can put _ in place of them

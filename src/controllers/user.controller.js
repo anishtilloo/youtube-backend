@@ -1,7 +1,7 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import { User } from "../models/user.model.js";
+import { User } from "../db/models/user.model.js";
 import {
   uploadOnCloudinary,
   deleteImageOnCloudinary,
@@ -57,11 +57,8 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Avatar file is required");
   }
 
-  const uploadAvatarOnCloudinary =
-    await uploadOnCloudinary(avatarLocalFilePath);
-  const uploadCoverImageOnCloudinary = await uploadOnCloudinary(
-    coverImageLocalFilePath
-  );
+  const uploadAvatarOnCloudinary = await uploadOnCloudinary(avatarLocalFilePath);
+  const uploadCoverImageOnCloudinary = coverImageLocalFilePath && await uploadOnCloudinary(coverImageLocalFilePath);
 
   if (!uploadAvatarOnCloudinary) {
     throw new ApiError(400, "Avatar file is required");
