@@ -1,4 +1,4 @@
-import { verifyToken } from "../modules/token.js";
+import { verifyToken } from "../services/TokenService.js";
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { User } from "../db/models/user.model.js";

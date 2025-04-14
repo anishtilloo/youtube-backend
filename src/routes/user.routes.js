@@ -14,6 +14,14 @@ import {
 } from "../controllers/user.controller.js";
 import upload from "../middlewares/multer.middleware.js";
 import { authenticateToken } from "../middlewares/auth.middleware.js";
+import { 
+  validateRegisteringUser,
+  validateLoggingUser,
+  validateRefreshToken,
+  validateChangingPassword,
+  validateAccountDetails,
+  validateFiles 
+} from "../middlewares/validate.middleware.js";
 
 const userRouter = express.Router();
 
@@ -30,40 +38,76 @@ userRouter
         maxCount: 1,
       },
     ]),
+    validateRegisteringUser,
+    validateFiles,
     registerUser
   );
 
 userRouter
   .route("/login")
-  .post(loginUser);
+  .post(
+    validateLoggingUser, 
+    loginUser,
+  );
 
 // secured Routes
 userRouter
   .route("/logout")
-  .post(authenticateToken, logoutUser);
+  .post(
+    authenticateToken,
+    logoutUser,
+  );
 userRouter
   .route("/refresh-token")
-  .post(refreshAccessToken);
+  .post(
+    validateRefreshToken,
+    refreshAccessToken,
+  );
 userRouter
   .route("/change-password")
-  .patch(authenticateToken, changeUserPassword);
+  .patch(
+    authenticateToken,
+    validateChangingPassword,
+    changeUserPassword,
+  );
 userRouter
   .route("/profile")
-  .get(authenticateToken, getCurrentUser);
+  .get(
+    authenticateToken,
+    getCurrentUser,
+  );
 userRouter
   .route("/account-details")
-  .patch(authenticateToken, updateAccountDetails);
+  .patch(
+    authenticateToken,
+    validateAccountDetails,
+    updateAccountDetails,
+  );
 userRouter
   .route("/update-avatar")
-  .patch(authenticateToken, upload.single("avatar"), updateUserAvatar);
+  .patch(
+    authenticateToken, 
+    upload.single("avatar"),
+    updateUserAvatar,
+  );
 userRouter
   .route("update-coverImage")
-  .patch(authenticateToken, upload.single("coverImage"), updateUserCoverImage);
+  .patch(
+    authenticateToken,
+    upload.single("coverImage"),
+    updateUserCoverImage,
+  );
 userRouter
   .route("/channel-profile/:userName")
-  .get(authenticateToken, getUserChannelProfile);
+  .get(
+      authenticateToken,
+      getUserChannelProfile,
+    );
 userRouter
   .route("/watch-history")
-  .get(authenticateToken, getUserHistory)
+  .get(
+    authenticateToken,
+    getUserHistory,
+  )
 
 export default userRouter;

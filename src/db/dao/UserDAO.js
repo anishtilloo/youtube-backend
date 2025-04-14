@@ -151,6 +151,11 @@ class UserDAO {
           ]);
         
     }
+
+  // 🔹 Save the user with toggling the validation of pre hook
+    async saveUser(user, shouldValidateBeforeSave) {
+      return user.save({ validateBeforeSave: shouldValidateBeforeSave });
+    }
 }
 
 export default new UserDAO();

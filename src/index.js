@@ -2,7 +2,7 @@
 import dotenv from "dotenv";
 import connectDB from "./db/index.js";
 import { app } from "./app.js";
-import { logger } from "./modules/logger.js";
+import { logger } from "./utils/logger.js";
 import { config } from "./config/default.js";
 
 dotenv.config({
